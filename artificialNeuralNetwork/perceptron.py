@@ -17,7 +17,11 @@ p = [[1,1,-1],[1,-1,-1],[-1,1,-1],[-1,-1,-1]] # conjunto de valores de entrada a
 d = [1, 1, 1, -1] # saidas desejadas
 w = numpy.random.rand(len(p[0])) # inicializacao randomica dos pesos
 
-c = 0.5          #taxa de aprendizado
+# learning rate (taxa de aprendizado).
+# deve afetar a velocidade de convergência do algoritmo.
+# quanto menor a taxa de aprendizado, mais iterações.
+learningRate = 0.01
+
 d_error = 0.01   #erro desejado
 
 iter = 0
@@ -26,7 +30,7 @@ while True:
     for i in range(0, len(p)):
         o = findOutput(p[i], w)
         error += ((d[i]-o)**2)/2
-        learningSignal = c*(d[i]-o)
+        learningSignal = learningRate*(d[i]-o)
         for k in range(0, len(p[i])):
             w[k] += learningSignal*p[i][k]
 
