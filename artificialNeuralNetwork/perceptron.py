@@ -22,7 +22,10 @@ w = numpy.random.rand(len(p[0])) # inicializacao randomica dos pesos
 # quanto menor a taxa de aprendizado, mais iterações.
 learningRate = 0.01
 
-d_error = 0.01   #erro desejado
+# desired error (erro desejado).
+# deve afetar o número de iterações necessárias para convergência do algoritmo.
+# quanto menor o erro desejado, mais iterações
+d_error = 0.001
 
 iter = 0
 while True:
