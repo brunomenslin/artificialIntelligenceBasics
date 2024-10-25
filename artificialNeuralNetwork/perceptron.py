@@ -46,26 +46,6 @@ def findOutput(inputs, weights):
     return activation(weightedSum)
 
 
-# conjunto de valores de entrada ampliados com a entrada dummy.
-# A entrada é aumentada com um elemento extra fixo para -1 (bias).
-# Bias é uma forma de ajustar a função de ativação para melhor separação linear.
-inputs = [
-    [1, 1, -1], # Par de entradas binárias (x1 e x2) mais o bias.
-    [1, -1, -1], # Conjuntos relacionados a problemas de lógica binária.
-    [-1, 1, -1],
-    [-1, -1, -1]
-]
-
-
-# saidas desejadas
-desiredOutputs = [1, 1, 1, -1]
-
-
-# Pesos!
-# Inicialização randômica dos pesos.
-weights = numpy.random.rand(len(inputs[0]))
-
-
 # Taxa de Aprendizado!
 # Determina a magnitude do ajuste nos pesos a cada iteração.
 # Um valor maior acelera o aprendizado, mas pode causar instabilidade.
@@ -79,54 +59,88 @@ learningRate = 0.01
 desiredErrors = 0.001
 
 
-# Número de Iterações!
-# A cada época, loop while, a rede neural é treinada com todos os inputs.
-iterations = 0
+# Função de Treino!
+# Treina o perceptron e ajusta os pesos com base no erro entre a saída atual do
+# perceptron e a saída desejada, para as entradas e saídas esperadas.
+def trainPerceptron (inputs, desiredOutputs, weights):
+
+    # Número de Iterações!
+    # A cada época, loop while, a rede neural é treinada com todos os inputs.
+    iterations = 0
+
+    # Laço de Treinamento!
+    while True:
+
+        # Erro Acumulado da Rede!
+        errors = 0.0
+
+        # Loop para as amostras de entrada.
+        for i in range(0, len(inputs)):
+
+            # Para cada amostra de entrada, calcula-se a saída atual.
+            output = findOutput(inputs[i], weights)
+
+            # O erro acumulado representa a diferença quadrática entre a saída
+            # desejada "desiredOutputs" e a saída calculada "output".
+            errors += ((desiredOutputs[i] - output) ** 2) / 2
+
+            # Definição do sinal de aprendizado, que é a diferença entre a saída
+            # desejada "desiredErrors" e a saída atual "output" multiplicada
+            # pela taxa de aprendizado "learningRate".
+            learningSignal = (learningRate * (desiredOutputs[i] - output))
+
+            # Os pesos são ajustados de acordo com o sinal de aprendizado
+            # "learningSignal" para aproximar a saída desejada.
+            for k in range(0, len(inputs[i])):
+                weights[k] += (learningSignal * inputs[i][k])
+
+        # Cálculo de iterações.
+        iterations += 1
+
+        # Registro de treinamento.
+        print(errors, weights)
+
+        # O treinamento continua até que o erro acumulado "errors" seja inferior ao
+        # erro desejado "desiredErrors", o que indica que a rede aprendeu
+        # a classificar corretamente as entradas.
+        if errors < desiredErrors:
+            print('Iterations:', iterations)
+            break
+
+    # Retorna os pesos ajustados.
+    return weights
 
 
-# Laço de Treinamento!
-while True:
-
-    # Erro Acumulado da Rede!
-    errors = 0.0
-
-    # Loop para as amostras de entrada.
-    for i in range(0, len(inputs)):
-
-        # Para cada amostra de entrada, calcula-se a saída atual.
-        output = findOutput(inputs[i], weights)
-
-        # O erro acumulado representa a diferença quadrática entre a saída
-        # desejada "desiredOutputs" e a saída calculada "output".
-        errors += ((desiredOutputs[i] - output) ** 2) / 2
-
-        # Definição do sinal de aprendizado, que é a diferença entre a saída
-        # desejada "desiredErrors" e a saída atual "output" multiplicada
-        # pela taxa de aprendizado "learningRate".
-        learningSignal = (learningRate * (desiredOutputs[i] - output))
-
-        # Os pesos são ajustados de acordo com o sinal de aprendizado
-        # "learningSignal" para aproximar a saída desejada.
-        for k in range(0, len(inputs[i])):
-            weights[k] += (learningSignal * inputs[i][k])
-
-    # Cálculo de iterações.
-    iterations += 1
-
-    # Registro de treinamento.
-    print(errors, weights)
-
-    # O treinamento continua até que o erro acumulado "errors" seja inferior ao
-    # erro desejado "desiredErrors", o que indica que a rede aprendeu
-    # a classificar corretamente as entradas.
-    if errors < desiredErrors:
-        print('Iterations:', iterations)
-        break
-
-
+# Função de Teste!
 # Após o treinamento, o código testa o perceptron com as mesmas entradas usadas
 # durante o treinamento para verificar se a rede agora classifica corretamente.
-print(findOutput([1, 1, -1], weights))
-print(findOutput([1, -1, -1], weights))
-print(findOutput([-1, 1, -1], weights))
-print(findOutput([-1, -1, -1], weights))
+def testPerceptron (adjustedWeights, inputs):
+    for i in range(len(inputs)):
+        print(findOutput(inputs[i], adjustedWeights))
+
+
+# Par de entradas binárias (x1 e x2) mais o bias, elemento extra fixo para -1.
+# Bias é uma forma de ajustar a função de ativação para melhor separação linear.
+# Estes conjuntos estão relacionados a problemas de lógica binária.
+inputs = [[1, 1, -1], [1, -1, -1], [-1, 1, -1], [-1, -1, -1]]
+
+
+# Saíddas Desejadas!
+# As saídas desejadas para cada porta lógica (or, and, xor) representam
+# o comportamento que esperamos que o perceptron aprenda,
+# com cada porta tendo sua lógica específica.
+desiredOutputsForOr = [1, 1, 1, -1]
+desiredOutputsForAnd = [1, -1, -1, -1]
+desiredOutputsForXor = [-1, 1, 1, -1]
+
+
+# Pesos!
+# Inicialização randômica dos pesos.
+weights = numpy.random.rand(len(inputs[0]))
+
+# Apenas um perceptron não consegue aprender a função XOR, visto que, esta não é
+# linearmente separável, não há uma linha reta que possa dividir os pontos
+# de entrada em duas classes distintas, como na função de ativação.
+testPerceptron(trainPerceptron(inputs, desiredOutputsForOr, weights), inputs)
+testPerceptron(trainPerceptron(inputs, desiredOutputsForAnd, weights), inputs)
+# testPerceptron(trainPerceptron(inputs, desiredOutputsForXor, weights), inputs)
